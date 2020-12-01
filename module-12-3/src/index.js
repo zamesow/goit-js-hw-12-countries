@@ -1,6 +1,6 @@
 // https://www.smashingmagazine.com/2018/01/deferring-lazy-loading-intersection-observer-api/
 
-import './js/if';
+// import './js/if';
 // import './js/io';
 import articlesTpl from './templates/articles.hbs';
 import NewsApiService from './js/news-service';
@@ -23,6 +23,7 @@ function onSearch(e) {
   newsApiService.fetchArticles().then(articles => {
     appendArticlesMarkup(articles);
     newsApiService.incrementPage();
+    registerIntersectionObserver();
   });
 }
 
@@ -41,6 +42,36 @@ function getRefs() {
     sentinel: document.querySelector('#sentinel'),
   };
 }
+
+function registerIntersectionObserver() {
+  const onEntry = entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && newsApiService.query !== '') {
+      // console.log('Пора грузить ещё статьи' + Date.now());
+      newsApiService.fetchArticles().then(articles => {
+        appendArticlesMarkup(articles);
+        newsApiService.incrementPage();
+      });
+    }
+  });
+};
+
+  const observer = new IntersectionObserver(onEntry, {
+    rootMargin: '500px',
+  });
+observer.observe(refs.sentinel);
+}
+
+
+
+
+
+
+
+
+
+
+
 
 // const onEntry = entries => {
 //   entries.forEach(entry => {
